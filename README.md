@@ -311,3 +311,21 @@ Internet. Actualmente cualquier cuenta activa puede gestionar todos los
 contactos del CRM; no hay permisos por propietario. Django Admin sí exige sus
 permisos propios. Para producción faltarían, entre otros ajustes, HTTPS,
 desactivar DEBUG, un servidor de producción y limitar los intentos de login.
+
+## Validación automática en GitHub (CI)
+
+El repositorio tiene las ramas `main` (entrega integrada) y `desarrollo`.
+Los cambios se guardan con commits descriptivos en español y se integran después
+conservando su historial.
+
+Cada push o pull request ejecuta el flujo **Validar Mini CRM**, definido en
+`.github/workflows/ci.yml`. Descarga el código, prepara Python, instala las
+dependencias, comprueba Django y las migraciones, ejecuta las pruebas y construye
+la imagen Docker. También comprueba Django dentro de la imagen construida.
+No necesitas subir `.env`: el flujo genera una clave temporal y usa una base
+SQLite de pruebas independiente.
+
+Puedes ver el resultado en la pestaña **Actions** del repositorio de GitHub.
+Un resultado verde indica que terminaron correctamente las comprobaciones de
+ese commit. El flujo valida la entrega; no publica la aplicación en un servidor.
+El desafío no requiere despliegue a producción.
