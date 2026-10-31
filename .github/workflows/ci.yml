@@ -1,0 +1,56 @@
+name: Validar Mini CRM
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    name: Django y Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      DJANGO_DEBUG: '0'
+      DJANGO_DB_PATH: /tmp/minicrm-ci.sqlite3
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Generar clave temporal de pruebas
+        run: python -c "import os,secrets; open(os.environ['GITHUB_ENV'], 'a').write('DJANGO_SECRET_KEY=' + secrets.token_urlsafe(48) + '\n')"
+
+      - name: Instalar dependencias
+        run: python -m pip install -r backend/requirements.txt
+
+      - name: Comprobar Django
+        working-directory: backend
+        run: python manage.py check
+
+      - name: Comprobar migraciones pendientes
+        working-directory: backend
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Ejecutar pruebas automatizadas
+        working-directory: backend
+        run: python manage.py test clients --verbosity 2
+
+      - name: Validar configuración de Docker Compose
+        run: docker compose -f docker/docker-compose.yml config --quiet
+
+      - name: Construir imagen Docker
+        run: docker build -f docker/Dockerfile -t minicrm:ci .
+
+      - name: Comprobar entorno desde la imagen
+        run: docker run --rm -e DJANGO_SECRET_KEY -e DJANGO_DEBUG=0 -e DJANGO_DB_PATH=/tmp/minicrm.sqlite3 minicrm:ci python manage.py check
