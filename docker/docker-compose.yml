@@ -1,0 +1,31 @@
+﻿name: minicrm
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    init: true
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ../backend:/app/backend
+      - ../frontend:/app/frontend
+      - ../base_de_datos:/app/backend/base_de_datos
+      - crm_data:/data
+    environment:
+      DJANGO_DEBUG: "1"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:?Crea el archivo .env siguiendo README.md}"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,[::1]"
+      DJANGO_DB_PATH: /data/db.sqlite3
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  crm_data:
+
