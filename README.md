@@ -1,4 +1,4 @@
-﻿# Mini CRM
+# Mini CRM
 
 Un pequeño sistema para registrar, buscar, editar y eliminar clientes.
 Incluye un dashboard, filtros por estado y gráficos de resumen.
@@ -50,17 +50,17 @@ a GitHub ni lo compartas; cambiar la clave cierra las sesiones existentes.
 ## 4. Levanta la aplicación
 
 ```powershell
-docker compose -f docker/docker-compose.yml up --build -d --wait
+docker compose --env-file .env -f docker/docker-compose.yml up --build -d --wait
 ```
 
-Espera a que termine. La primera vez puede tardar unos minutos.
+Espera a que termine. La primera vez puede tardar unos minutos. La opción `--env-file .env` indica expresamente dónde está tu clave de configuración.
 Este comando prepara el contenedor, crea las tablas de SQLite, carga los datos
 de ejemplo e inicia Django.
 
 Para comprobar que está encendido:
 
 ```powershell
-docker compose -f docker/docker-compose.yml ps
+docker compose --env-file .env -f docker/docker-compose.yml ps
 ```
 
 El servicio `web` debe aparecer como **Up** y **healthy**.
@@ -72,7 +72,7 @@ La aplicación necesita iniciar sesión. Los contactos de ejemplo **no son cuent
 de acceso**, por eso debes crear tu propio administrador:
 
 ```powershell
-docker compose -f docker/docker-compose.yml exec web python manage.py createsuperuser
+docker compose --env-file .env -f docker/docker-compose.yml exec web python manage.py createsuperuser
 ```
 
 La terminal te pedirá estos datos. Por ejemplo:
@@ -81,7 +81,7 @@ La terminal te pedirá estos datos. Por ejemplo:
 | --- | --- |
 | Nombre de usuario / Username | `evaluador` |
 | Correo / Email address | `evaluador@example.com` |
-| Contraseña / Password | Una contraseña segura que tú elijas de 8 caracteres |
+| Contraseña / Password | Una contraseña segura que tú elijas, de al menos 8 caracteres |
 | Confirmar contraseña / Password again | Repite esa misma contraseña |
 
 Al escribir la contraseña **no aparecen letras ni asteriscos**; es normal.
@@ -127,7 +127,7 @@ que hayas borrado. Los datos y contraseñas de la computadora del autor no se co
 Abre Docker Desktop, abre la terminal en el proyecto y ejecuta:
 
 ```powershell
-docker compose -f docker/docker-compose.yml up -d --wait
+docker compose --env-file .env -f docker/docker-compose.yml up -d --wait
 ```
 
 Después abre http://localhost:8000/.
@@ -136,7 +136,7 @@ Después abre http://localhost:8000/.
 Para apagarlo sin perder los datos:
 
 ```powershell
-docker compose -f docker/docker-compose.yml down
+docker compose --env-file .env -f docker/docker-compose.yml down
 ```
 
 No agregues `-v` al comando de apagado: esa opción elimina el volumen y su base.
@@ -219,8 +219,8 @@ pruebas automatizadas. Para comprobar la versión que descargaste, con el
 contenedor encendido ejecuta:
 
 ```powershell
-docker compose -f docker/docker-compose.yml exec web python manage.py check
-docker compose -f docker/docker-compose.yml exec web python manage.py test clients
+docker compose --env-file .env -f docker/docker-compose.yml exec web python manage.py check
+docker compose --env-file .env -f docker/docker-compose.yml exec web python manage.py test clients
 ```
 
 `check` debe indicar **System check identified no issues** y las pruebas deben
@@ -241,7 +241,7 @@ inicio y cierre de sesión y manejo de errores.
 Para ver los mensajes del servidor:
 
 ```powershell
-docker compose -f docker/docker-compose.yml logs -f web
+docker compose --env-file .env -f docker/docker-compose.yml logs -f web
 ```
 
 Ctrl+C sale de los mensajes sin apagar el contenedor.
@@ -249,13 +249,13 @@ Ctrl+C sale de los mensajes sin apagar el contenedor.
 Para cambiar la contraseña, reemplaza `evaluador` por tu nombre de usuario:
 
 ```powershell
-docker compose -f docker/docker-compose.yml exec web python manage.py changepassword evaluador
+docker compose --env-file .env -f docker/docker-compose.yml exec web python manage.py changepassword evaluador
 ```
 
 Si modificaste el proyecto y necesitas reconstruirlo:
 
 ```powershell
-docker compose -f docker/docker-compose.yml up --build -d --wait
+docker compose --env-file .env -f docker/docker-compose.yml up --build -d --wait
 ```
 
 ## Nota sobre el entorno
@@ -329,3 +329,20 @@ Puedes ver el resultado en la pestaña **Actions** del repositorio de GitHub.
 Un resultado verde indica que terminaron correctamente las comprobaciones de
 ese commit. El flujo valida la entrega; no publica la aplicación en un servidor.
 El desafío no requiere despliegue a producción.
+
+## Comprobación de instalación desde cero
+
+El 30 de octubre de 2026 se verificó una copia limpia del repositorio, con clave,
+volumen SQLite y administrador de prueba propios. Se utilizó el puerto 8001 para
+no interferir con la instalación habitual del autor en 8000; la guía mantiene 8000.
+
+- `manage.py check`: sin errores.
+- Migraciones: sin cambios pendientes.
+- 17 pruebas automatizadas: resultado OK.
+- Pruebas HTTP: login, acceso protegido, Admin, alta, edición, búsqueda, filtro,
+  rechazo de datos inválidos, eliminación, notificación y cierre de sesión correctos.
+- Archivos CSS, JavaScript y animaciones disponibles por HTTP.
+
+El CSS está organizado por componentes, con las adaptaciones de pantalla
+agrupadas al final. La revisión visual de escritorio, tablet y móvil fue realizada
+por el autor; la comprobación HTTP no sustituye esa revisión visual.
