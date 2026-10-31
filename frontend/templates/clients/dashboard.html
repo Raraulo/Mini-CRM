@@ -1,0 +1,211 @@
+﻿{% load static %}
+<!doctype html>
+<html lang="es">
+
+<!-- Recursos de la página -->
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gestiona tus clientes y oportunidades en un solo lugar.">
+  <title>Clientes · Mini CRM</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}?v=1793405848771">
+  <link rel="stylesheet" href="{% static 'css/crm.css' %}?v=39a6156d2ba5">
+  <script src="{% static 'js/vendor/lottie_light.min.js' %}?v=1793405848771" defer></script>
+  <script src="{% static 'js/crm.js' %}?v=081bfc7ba3c8" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<!-- Navegación y cuenta conectada -->
+<aside class="sidebar">
+  <a class="brand" href="{% url 'clients:dashboard' %}"><span class="brand-icon">m.</span> mini<span class="brand-small">CRM</span></a>
+  <p class="nav-label">ESPACIO DE TRABAJO</p>
+  <nav aria-label="Principal">
+    <a class="nav-active" href="{% url 'clients:dashboard' %}" aria-current="page" title="Clientes"><span class="nav-lottie" data-animation-url="{% static 'lotties/clientes.json' %}?v=1793405848771" aria-hidden="true"></span><span class="nav-text">Clientes</span></a>
+    <a href="{% url 'admin:index' %}" title="Ir a Django"><span class="nav-lottie" data-animation-url="{% static 'lotties/admin.json' %}?v=1793405848771" aria-hidden="true"></span><span class="nav-text">Ir a Django</span></a>
+  </nav>
+  <div class="sidebar-note"><span class="note-symbol">✳</span>
+<h2>Las relaciones importan.</h2>
+<p>Cada gran proyecto empieza con una buena conversación.</p>
+</div>
+  <div class="workspace"><span class="workspace-avatar">{{ request.user.get_username|first|upper }}</span>
+<div class="account-info"><strong title="{{ request.user.get_username }}">{{ request.user.get_full_name|default:request.user.get_username }}</strong><small>{% if request.user.is_superuser %}Administrador{% else %}Usuario conectado{% endif %}</small>
+<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="logout-button">Cerrar sesión</button>
+</form>
+</div>
+</div>
+</aside>
+
+<!-- Área principal del CRM -->
+<div class="app">
+  <header class="topbar"><span>Mi espacio <span class="separator">/</span> <strong>Clientes</strong></span><span class="topbar-tag"><i></i> Tu agenda de relaciones</span>
+</header>
+  <main id="main">
+
+<!-- Título y botón de registro -->
+    <section class="page-heading">
+<div>
+<p class="eyebrow">CONECTA. ORGANIZA. CRECE.</p>
+<h1><span class="marker">Una mejor conexión,</span><br class="mobile-break"> <span class="marker">con cada cliente.</span>
+</h1>
+<p class="subtitle">Todo lo que necesitas para cuidar tus relaciones y dar el siguiente paso.</p>
+</div><button class="button primary" id="new-client" type="button"><span aria-hidden="true">＋</span> Nuevo cliente</button>
+</section>
+
+<!-- Tarjetas de resumen -->
+    <section class="metrics" aria-label="Resumen de clientes">
+      <article class="metric" tabindex="0"><span class="metric-lottie" data-animation-url="{% static 'lotties/contactos.json' %}?v=1793405848771" aria-hidden="true"></span>
+<h2>Total de contactos</h2><strong>{{ metrics.total }}</strong><small>Tu red, en un solo lugar</small>
+</article>
+      <article class="metric" tabindex="0"><span class="metric-lottie" data-animation-url="{% static 'lotties/prospectos.json' %}?v=1793405848771" aria-hidden="true"></span>
+<h2>Prospectos</h2><strong>{{ metrics.prospects }}</strong><small><i class="dot prospect"></i> Oportunidades por explorar</small>
+</article>
+      <article class="metric" tabindex="0"><span class="metric-lottie" data-animation-url="{% static 'lotties/activos.json' %}?v=1793405848771" aria-hidden="true"></span>
+<h2>Clientes activos</h2><strong>{{ metrics.customers }}</strong><small><i class="dot customer"></i> Relaciones que crecen</small>
+</article>
+      <article class="metric" tabindex="0"><span class="metric-lottie" data-animation-url="{% static 'lotties/inactivos.json' %}?v=1793405848771" aria-hidden="true"></span>
+<h2>Inactivos</h2><strong>{{ metrics.inactive }}</strong><small><i class="dot inactive"></i> Una ocasión para reconectar</small>
+</article>
+    </section>
+
+<!-- Gráficos desplegables -->
+    <div class="insights-toggle"><button type="button" id="toggle-insights" aria-expanded="false" aria-controls="insights">Ver más <span aria-hidden="true">＋</span></button>
+</div>
+    <section class="insights" id="insights" aria-label="Estadísticas de clientes" hidden>
+      <article class="chart-card">
+<p class="eyebrow">TU CARTERA EN PERSPECTIVA</p>
+<h2>Distribución de contactos</h2>
+<p class="chart-description">Estado actual de todos tus contactos.</p>
+<div class="donut-layout">
+<div class="donut" id="status-donut" role="img">
+<div><strong>{{ metrics.total }}</strong><span>contactos</span>
+</div>
+</div><ul class="chart-legend" id="chart-legend"></ul>
+</div>
+</article>
+      <article class="chart-card">
+<p class="eyebrow">RITMO DE CAPTACIÓN</p>
+<h2>Nuevos contactos</h2>
+<p class="chart-description">Registros por día · últimos 30 días</p>
+<div id="registrations-chart" class="line-chart">
+</div>
+<p class="chart-note" id="chart-note">
+</p>
+</article>
+    </section>
+    {{ chart_data|json_script:"chart-data" }}
+
+<!-- Directorio, búsqueda, filtro y acciones -->
+    <section class="directory" aria-labelledby="directory-title">
+      <div class="directory-heading">
+<div>
+<h2 id="directory-title">Tu directorio</h2>
+<p>Personas y empresas con las que construyes algo grande.</p>
+</div>
+</div>
+      <form class="toolbar" method="get" id="filters"><label class="search"><span aria-hidden="true">⌕</span><span class="sr-only">Buscar por nombre o empresa</span><input type="search" name="q" id="search" placeholder="Buscar por nombre o empresa…" value="{{ query }}" autocomplete="off"><kbd aria-hidden="true">/</kbd></label><label class="status-filter"><span>Estado</span><select name="status" id="status-filter"><option value="">Todos los estados</option>{% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label><button class="button secondary filter-submit" type="submit">Buscar</button><button class="clear-filter" id="clear-filters" type="button">Limpiar</button>
+</form>
+      <div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th scope="col">Nombre</th>
+<th scope="col">Empresa</th>
+<th scope="col">Correo electrónico</th>
+<th scope="col">Teléfono</th>
+<th scope="col">Estado</th>
+<th scope="col" class="actions-heading">Acciones</th>
+</tr>
+</thead>
+<tbody id="client-rows">
+      {% for client in clients %}
+        <tr data-client-row data-name="{{ client.name }}" data-company="{{ client.company }}" data-status="{{ client.status }}">
+          <td data-label="Nombre">
+<div class="person"><span class="avatar" aria-hidden="true">{{ client.name|first|upper }}</span>
+<div><strong>{{ client.name }}</strong><small>Contacto #{{ client.pk|stringformat:"03d" }}</small>
+</div>
+</div>
+</td>
+          <td data-label="Empresa">{{ client.company|default:'—' }}</td>
+<td data-label="Correo"><a class="email" href="mailto:{{ client.email }}">{{ client.email }}</a>
+</td>
+<td data-label="Teléfono">{{ client.phone|default:'—' }}</td>
+          <td data-label="Estado"><span class="badge {{ client.status }}"><i></i>{{ client.get_status_display }}</span>
+</td>
+          <td class="actions"><button class="icon-button edit-client" type="button" aria-label="Editar a {{ client.name }}" data-url="{% url 'clients:update' client.pk %}" data-name="{{ client.name }}" data-company="{{ client.company }}" data-email="{{ client.email }}" data-phone="{{ client.phone }}" data-status="{{ client.status }}"><img src="{% static 'lotties/edit.png' %}?v=1793405848771" alt="" width="22" height="22"><span class="action-label">Editar</span></button><button class="icon-button delete-client" type="button" aria-label="Eliminar a {{ client.name }}" data-url="{% url 'clients:delete' client.pk %}" data-name="{{ client.name }}"><img src="{% static 'lotties/delete.png' %}?v=1793405848771" alt="" width="22" height="22"><span class="action-label">Borrar</span></button>
+</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+</table>
+</div>
+      <div class="empty-state" id="empty-state" {% if clients %}hidden{% endif %}><span aria-hidden="true">◎</span>
+<h3>{% if query or selected_status %}No encontramos coincidencias{% else %}Tu próxima conexión empieza aquí{% endif %}</h3>
+<p>Agrega un cliente o ajusta los filtros para ver tus contactos.</p><button class="button secondary" type="button" id="empty-new">＋ Agregar cliente</button>
+</div>
+      <footer class="table-footer"><span id="results" role="status" aria-live="polite">{{ clients|length }} de {{ metrics.total }} contactos</span><span>Un contacto. Una nueva posibilidad.</span>
+</footer>
+    </section>
+    <footer class="page-footer"><span><b>mini</b> · Pequeñas conexiones, grandes oportunidades.</span><span>Tu próximo paso empieza con una conversación.</span>
+</footer>
+  </main>
+</div>
+
+<!-- Modal compartido para crear y editar -->
+<dialog id="client-dialog" {% if open_form %}data-reopen="true"{% endif %} aria-labelledby="form-title">
+  <form id="client-form" method="post" action="{% if editing %}{% url 'clients:update' editing.pk %}{% else %}{% url 'clients:create' %}{% endif %}" data-create-url="{% url 'clients:create' %}">
+    {% csrf_token %}<div class="dialog-heading">
+<div>
+<p class="eyebrow">TU RED SIGUE CRECIENDO</p>
+<h2 id="form-title" class="marker">{% if editing %}Editar cliente{% else %}Nuevo cliente{% endif %}</h2>
+</div><button class="close-dialog" type="button" aria-label="Cerrar">×</button>
+</div>
+    <p class="dialog-description">Los buenos vínculos empiezan con los datos correctos.</p>
+    {% if form.errors %}<div class="form-summary" role="alert">Revisa los campos indicados para continuar.{{ form.non_field_errors }}</div>{% endif %}
+    <div class="form-grid">{% for field in form %}<div class="field {% if field.name == 'name' or field.name == 'status' %}wide{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label|capfirst }} {% if field.field.required %}<span aria-hidden="true">*</span>{% else %}<small>opcional</small>{% endif %}</label>{{ field }}<div class="field-errors" id="{{ field.id_for_label }}_errors">{{ field.errors }}</div>
+</div>{% endfor %}</div>
+    <p class="required-note">* Campos obligatorios</p>
+<div class="dialog-actions"><button class="button secondary close-dialog" type="button">Cancelar</button><button class="button primary" type="submit" id="save-client">Guardar cliente</button>
+</div>
+  </form>
+</dialog>
+
+<!-- Confirmación de eliminación -->
+<dialog id="delete-dialog" aria-labelledby="delete-title">
+<form method="post" id="delete-form">{% csrf_token %}<div class="dialog-heading">
+<h2 id="delete-title">¿Eliminar este cliente?</h2><button type="button" class="close-dialog" aria-label="Cerrar">×</button>
+</div>
+<p class="delete-description">Vas a eliminar a <strong id="delete-name"></strong>. Esta acción no se puede deshacer.</p>
+<div class="dialog-actions"><button class="button secondary close-dialog" type="button">Conservar cliente</button><button class="button danger" type="submit">Sí, eliminar</button>
+</div>
+</form>
+</dialog>
+
+<!-- Notificaciones del resultado de las operaciones -->
+<div class="toasts" aria-live="polite">{% for message in messages %}<div class="toast" role="status"><span class="toast-lottie" data-animation-url="{% if 'deleted' in message.tags %}{% static 'lotties/listo-borrado.json' %}?v=1793405848771{% else %}{% static 'lotties/listo.json' %}?v=1793405848771{% endif %}" aria-hidden="true"></span>
+<div class="toast-copy"><strong>{% if 'deleted' in message.tags %}Cliente eliminado{% else %}¡Todo listo!{% endif %}</strong>
+<p>{{ message }}</p>
+</div><button type="button" aria-label="Cerrar notificación">×</button>
+</div>{% endfor %}</div>
+<noscript>
+<div class="noscript">Activa JavaScript para abrir los formularios de registro, edición y eliminación. La búsqueda funciona con el botón Buscar.</div></noscript>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

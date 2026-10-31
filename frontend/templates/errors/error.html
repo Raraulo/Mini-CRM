@@ -1,0 +1,26 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<!-- Recursos de la página de error -->
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>{{ error_title }} · Mini CRM</title><link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}?v=1793405848771"><link rel="stylesheet" href="{% static 'css/crm.css' %}?v=1793405848771"><script src="{% static 'js/vendor/lottie_light.min.js' %}?v=1793405848771" defer></script><script src="{% static 'js/error.js' %}?v=1793405848771" defer></script>
+</head>
+<body class="error-page">
+<!-- Animación y mensaje según el código HTTP -->
+<main class="error-content">
+  <a class="brand" href="{% url 'clients:dashboard' %}" aria-label="Volver a Mini CRM"><span class="brand-icon">m.</span> mini<span class="brand-small">CRM</span></a>
+
+<!-- Lottie de mantenimiento -->
+  <div id="error-animation" data-animation-url="{% static 'lotties/mantenimiento.json' %}?v=1793405848771" aria-hidden="true">
+</div>
+
+<!-- Código y descripción del error -->
+  <p class="error-code">ERROR {{ error_code }}</p>
+  <h1><span class="marker">{{ error_title }}</span>
+</h1>
+  <p class="error-description">{{ error_description }}</p>
+</main>
+</body>
+</html>
+
+
+
