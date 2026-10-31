@@ -1,5 +1,21 @@
 # Mini CRM
 
+<p align="center">
+  <img src="https://static.djangoproject.com/img/logos/django-logo-negative.svg" width="260" alt="Logo de Django">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/Django-5.2-092E20?logo=django&amp;logoColor=white" alt="Django 5.2">
+  <img src="https://img.shields.io/badge/SQLite-Base_de_datos-003B57?logo=sqlite&amp;logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/Docker-Contenedores-2496ED?logo=docker&amp;logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?logo=html5&amp;logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?logo=css3&amp;logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&amp;logoColor=black" alt="JavaScript Vanilla">
+  <img src="https://img.shields.io/badge/Lottie-Animaciones-00DDB3" alt="Animaciones Lottie">
+  <img src="https://github.com/Raraulo/Mini-CRM/actions/workflows/ci.yml/badge.svg?branch=main" alt="Estado de GitHub Actions en main">
+</p>
+
 Un pequeño sistema para registrar, buscar, editar y eliminar clientes.
 Incluye un dashboard, filtros por estado y gráficos de resumen.
 
