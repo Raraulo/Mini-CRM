@@ -1,0 +1,12 @@
+[
+  {"name": "Ana Torres", "company": "Estudio Aurora", "email": "ana.torres@example.com", "phone": "0991000001", "status": "customer"},
+  {"name": "Diego Molina", "company": "Café Origen", "email": "diego.molina@example.com", "phone": "0991000002", "status": "customer"},
+  {"name": "Valentina Ruiz", "company": "Verde Vivo", "email": "valentina.ruiz@example.com", "phone": "0991000003", "status": "customer"},
+  {"name": "Mateo Pérez", "company": "Norte Digital", "email": "mateo.perez@example.com", "phone": "0991000004", "status": "customer"},
+  {"name": "Camila Vega", "company": "Casa Nube", "email": "camila.vega@example.com", "phone": "0991000005", "status": "customer"},
+  {"name": "Sofía Herrera", "company": "Taller Lienzo", "email": "sofia.herrera@example.com", "phone": "0991000006", "status": "prospect"},
+  {"name": "Lucas Castro", "company": "Ruta Creativa", "email": "lucas.castro@example.com", "phone": "0991000007", "status": "prospect"},
+  {"name": "Isabella Ríos", "company": "Semilla Market", "email": "isabella.rios@example.com", "phone": "0991000008", "status": "prospect"},
+  {"name": "Gabriel Flores", "company": "Horizonte Viajes", "email": "gabriel.flores@example.com", "phone": "0991000009", "status": "inactive"},
+  {"name": "Emma Salazar", "company": "Punto Editorial", "email": "emma.salazar@example.com", "phone": "0991000010", "status": "inactive"}
+]
