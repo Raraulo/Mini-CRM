@@ -1,0 +1,51 @@
+/* Paleta compartida con Mini CRM; conserva el diseño y funciones de Django Admin. */
+:root,
+html[data-theme="light"],
+html[data-theme="dark"] {
+  --primary: #e68e6e;
+  --secondary: #e68e6e;
+  --accent: #42271e;
+  --primary-fg: #42271e;
+  --header-color: #42271e;
+  --header-branding-color: #42271e;
+  --header-bg: #e68e6e;
+  --header-link-color: #42271e;
+  --breadcrumbs-bg: #fbe7dc;
+  --breadcrumbs-fg: #6f4938;
+  --breadcrumbs-link-fg: #703b26;
+  --link-fg: #93472e;
+  --link-hover-color: #6d301d;
+  --link-selected-fg: #93472e;
+  --button-fg: #42271e;
+  --button-bg: #e68e6e;
+  --button-hover-bg: #db7c5b;
+  --default-button-bg: #e68e6e;
+  --default-button-hover-bg: #db7c5b;
+  --object-tools-fg: #42271e;
+  --object-tools-bg: #f4c1aa;
+  --object-tools-hover-bg: #e68e6e;
+  --selected-row: #fdf0e9;
+}
+
+/* Mantiene legibles los enlaces al activar el modo oscuro. */
+html[data-theme="dark"] {
+  --link-fg: #f3b49a;
+  --link-hover-color: #ffd1bd;
+  --link-selected-fg: #f3b49a;
+  --breadcrumbs-bg: #402b23;
+  --breadcrumbs-fg: #e9c8b8;
+  --breadcrumbs-link-fg: #ffd1bd;
+  --selected-row: #402b23;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --link-fg: #f3b49a;
+    --link-hover-color: #ffd1bd;
+    --link-selected-fg: #f3b49a;
+    --breadcrumbs-bg: #402b23;
+    --breadcrumbs-fg: #e9c8b8;
+    --breadcrumbs-link-fg: #ffd1bd;
+    --selected-row: #402b23;
+  }
+}
