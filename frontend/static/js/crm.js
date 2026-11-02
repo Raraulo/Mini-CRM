@@ -4,13 +4,19 @@ document.documentElement.classList.add('js');
 const dialog = document.querySelector('#client-dialog');
 const form = document.querySelector('#client-form');
 const deleteDialog = document.querySelector('#delete-dialog');
+const permissionDialog = document.querySelector('#permission-dialog');
+const permissions = JSON.parse(document.querySelector('#crm-permissions').textContent);
 const filters = document.querySelector('#filters');
 const search = document.querySelector('#search');
 const statusFilter = document.querySelector('#status-filter');
 const saveButton = document.querySelector('#save-client');
 
 // Alta y edición usan el mismo modal; se limpian valores y errores al abrir.
-function openNew() {
+function openNew(action = 'add') {
+  if (!permissions[action]) {
+    permissionDialog.showModal();
+    return false;
+  }
   form.reset();
   form.action = form.dataset.createUrl;
   for (const field of form.querySelectorAll('input:not([type=hidden]), select')) {
@@ -22,16 +28,17 @@ function openNew() {
   form.querySelector('.form-summary')?.remove();
   document.querySelector('#form-title').textContent = 'Nuevo cliente';
   dialog.showModal();
+  return true;
 }
-document.querySelector('#new-client').addEventListener('click', openNew);
-document.querySelector('#empty-new').addEventListener('click', openNew);
+document.querySelector('#new-client').addEventListener('click', () => openNew());
+document.querySelector('#empty-new').addEventListener('click', () => openNew());
 // Acciones del listado: delegación para filas actualizadas por la búsqueda.
 document.addEventListener('click', event => {
   const close = event.target.closest('.close-dialog');
   if (close) close.closest('dialog').close();
   const edit = event.target.closest('.edit-client');
   if (edit) {
-    openNew();
+    if (!openNew('change')) return;
     form.action = edit.dataset.url;
     document.querySelector('#form-title').textContent = 'Editar cliente';
     for (const name of ['name', 'company', 'email', 'phone', 'status']) {
@@ -40,12 +47,16 @@ document.addEventListener('click', event => {
   }
   const remove = event.target.closest('.delete-client');
   if (remove) {
+    if (!permissions.delete) {
+      permissionDialog.showModal();
+      return;
+    }
     document.querySelector('#delete-form').action = remove.dataset.url;
     document.querySelector('#delete-name').textContent = remove.dataset.name;
     deleteDialog.showModal();
   }
 });
-for (const modal of [dialog, deleteDialog]) {
+for (const modal of [dialog, deleteDialog, permissionDialog]) {
   modal.addEventListener('click', event => {
     if (event.target === modal) {
       const rect = modal.getBoundingClientRect();
@@ -82,6 +93,7 @@ document.querySelector('#delete-form').addEventListener('submit', event => {
   button.textContent = 'Eliminando…';
 });
 if (dialog.dataset.reopen) dialog.showModal();
+if (permissionDialog.dataset.reopen) permissionDialog.showModal();
 
 // Búsqueda dinámica: espera breve y cancelación de solicitudes anteriores.
 let timer;

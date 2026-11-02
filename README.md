@@ -323,9 +323,7 @@ acciones accidentales y dobles clics. **La seguridad real la aplican las
 comprobaciones de Django en el servidor.**
 
 Estas medidas no significan que el sistema tenga seguridad completa para
-Internet. Actualmente cualquier cuenta activa puede gestionar todos los
-contactos del CRM; no hay permisos por propietario. Django Admin sí exige sus
-permisos propios. Para producción faltarían, entre otros ajustes, HTTPS,
+Internet. Las cuentas activas pueden consultar el directorio compartido. Para crear, editar o borrar se requieren los permisos del modelo Client, tanto en el CRM como en Admin; no hay permisos por propietario. Para producción faltarían, entre otros ajustes, HTTPS,
 desactivar DEBUG, un servidor de producción y limitar los intentos de login.
 
 ## Validación automática en GitHub (CI)
@@ -362,3 +360,14 @@ no interferir con la instalación habitual del autor en 8000; la guía mantiene 
 El CSS está organizado por componentes, con las adaptaciones de pantalla
 agrupadas al final. La revisión visual de escritorio, tablet y móvil fue realizada
 por el autor; la comprobación HTTP no sustituye esa revisión visual.
+
+### Permisos para modificar clientes
+
+Marcar una cuenta como staff permite acceder al panel administrativo cuando
+corresponda, pero no concede permisos para modificar clientes. Un superusuario
+activo tiene todos los permisos. Para otras cuentas, asigna desde Django Admin,
+en sus permisos individuales o grupos, los permisos de Client que necesite:
+`add_client` (crear), `change_client` (editar) y `delete_client` (eliminar).
+El CRM utiliza esos mismos permisos. Sin ellos, muestra un modal explicativo
+y el servidor rechaza la operación con HTTP 403 sin modificar datos.
+La ampliación de pruebas de permisos se verificó con 20 pruebas en total: OK.

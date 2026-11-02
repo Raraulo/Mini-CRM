@@ -59,7 +59,7 @@ class DashboardTests(TestCase):
     def setUp(self):
         Client.objects.all().delete()
         from django.contrib.auth import get_user_model
-        self.user = get_user_model().objects.create_user(username='tester', password='Test-password-482!')
+        self.user = get_user_model().objects.create_superuser(username='tester', password='Test-password-482!')
         self.client.force_login(self.user)
         self.client_record = Client.objects.create(
             name='Ana Pérez', company='Estudio Norte', email='ana@example.com', phone='0991234567',
@@ -127,6 +127,45 @@ class DashboardTests(TestCase):
 
 
 # Comprueba cantidades y que la carga de ejemplo no sobrescriba contactos.
+class ClientPermissionTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_user(username='staff_lector', is_staff=True)
+        self.client.force_login(self.user)
+        self.record = Client.objects.create(name='Contacto Protegido', email='protegido@example.com')
+        self.data = {'name': 'Nombre Cambiado', 'email': 'nuevo@example.com', 'status': 'customer'}
+
+    def test_staff_without_permissions_can_read_but_cannot_write(self):
+        self.assertEqual(self.client.get(reverse('clients:dashboard')).status_code, 200)
+        initial_count = Client.objects.count()
+        for url in [reverse('clients:create'), reverse('clients:update', args=[self.record.pk]),
+                    reverse('clients:delete', args=[self.record.pk])]:
+            with self.subTest(url=url):
+                response = self.client.post(url, self.data)
+                self.assertEqual(response.status_code, 403)
+                self.assertTemplateUsed(response, 'clients/dashboard.html')
+                self.assertContains(response, 'No cuentas con permisos', status_code=403)
+                self.assertContains(response, 'data-reopen="true"', status_code=403)
+        self.record.refresh_from_db()
+        self.assertEqual(self.record.name, 'Contacto Protegido')
+        self.assertEqual(Client.objects.count(), initial_count)
+
+    def test_individual_permission_allows_only_its_operation(self):
+        from django.contrib.auth.models import Permission
+        self.user.user_permissions.add(Permission.objects.get(content_type__app_label='clients', codename='add_client'))
+        response = self.client.post(reverse('clients:create'), self.data)
+        self.assertRedirects(response, reverse('clients:dashboard'))
+        self.assertEqual(self.client.post(reverse('clients:delete', args=[self.record.pk])).status_code, 403)
+        response = self.client.get(reverse('clients:dashboard'))
+        self.assertEqual(response.context['crm_permissions'], {'add': True, 'change': False, 'delete': False})
+
+    def test_admin_also_denies_staff_without_model_permissions(self):
+        response = self.client.get(reverse('admin:clients_client_add'))
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(reverse('admin:clients_client_change', args=[self.record.pk]))
+        self.assertEqual(response.status_code, 403)
+
+
 class DemoDataTests(TestCase):
     def test_seed_counts_and_preserves_existing_contact(self):
         from importlib import import_module

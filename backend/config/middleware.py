@@ -12,6 +12,8 @@ class FriendlyErrorsMiddleware:
         response = self.get_response(request)
         # Un formulario inválido ya tiene una respuesta útil con sus errores.
         context = getattr(response, 'context_data', None) or {}
+        if response.status_code == 403 and context.get('permission_denied'):
+            return response
         form = context.get('form')
         if response.status_code == 400 and form is not None and form.is_bound and form.errors:
             return response
