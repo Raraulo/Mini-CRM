@@ -8,9 +8,9 @@
   <meta name="description" content="Gestiona tus clientes y oportunidades en un solo lugar.">
   <title>Clientes · Mini CRM</title>
   <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}?v=1793405848771">
-  <link rel="stylesheet" href="{% static 'css/crm.css' %}?v=4d1c580f6f95">
+  <link rel="stylesheet" href="{% static 'css/crm.css' %}?v=8452cbd6754f">
   <script src="{% static 'js/vendor/lottie_light.min.js' %}?v=1793405848771" defer></script>
-  <script src="{% static 'js/crm.js' %}?v=081bfc7ba3c8" defer></script>
+  <script src="{% static 'js/crm.js' %}?v=3bcabde09a51" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -172,12 +172,23 @@
 <!-- Confirmación de eliminación -->
 <dialog id="delete-dialog" aria-labelledby="delete-title">
 <form method="post" id="delete-form">{% csrf_token %}<div class="dialog-heading">
-<h2 id="delete-title">¿Eliminar este cliente?</h2><button type="button" class="close-dialog" aria-label="Cerrar">×</button>
+<h2 id="delete-title" class="marker">¿Eliminar este cliente?</h2><button type="button" class="close-dialog" aria-label="Cerrar">×</button>
 </div>
 <p class="delete-description">Vas a eliminar a <strong id="delete-name"></strong>. Esta acción no se puede deshacer.</p>
 <div class="dialog-actions"><button class="button secondary close-dialog" type="button">Conservar cliente</button><button class="button danger" type="submit">Sí, eliminar</button>
 </div>
 </form>
+</dialog>
+
+<!-- Permisos del modelo compartidos con Django Admin -->
+{{ crm_permissions|json_script:"crm-permissions" }}
+<dialog id="permission-dialog" aria-labelledby="permission-title" {% if permission_denied %}data-reopen="true"{% endif %}>
+  <div class="dialog-heading">
+    <h2 id="permission-title" class="marker">No cuentas con permisos</h2>
+    <button type="button" class="close-dialog" aria-label="Cerrar">×</button>
+  </div>
+  <p class="dialog-description">Tu cuenta no tiene permiso para realizar esta acción. Solicita acceso al administrador.</p>
+  <div class="dialog-actions"><button type="button" class="button primary close-dialog">Entendido</button></div>
 </dialog>
 
 <!-- Notificaciones del resultado de las operaciones -->

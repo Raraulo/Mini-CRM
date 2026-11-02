@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from .forms import ClientForm
 from .models import Client
+from .permissions import client_permission_required
 
 
 # Consultas del listado, filtros, métricas y datos para los gráficos.
@@ -40,7 +41,12 @@ def dashboard_context(request, form=None, editing=None):
     return {'clients': clients, 'metrics': metrics, 'query': query,
             'selected_status': status, 'statuses': Client.Status.choices,
             'form': form if form is not None else ClientForm(), 'editing': editing,
-            'open_form': form is not None, 'chart_data': chart_data}
+            'open_form': form is not None, 'chart_data': chart_data,
+            'crm_permissions': {
+                'add': request.user.has_perm('clients.add_client'),
+                'change': request.user.has_perm('clients.change_client'),
+                'delete': request.user.has_perm('clients.delete_client'),
+            }}
 
 
 @login_required
@@ -52,6 +58,7 @@ def dashboard(request):
 
 @login_required
 @require_POST
+@client_permission_required('clients.add_client')
 def create(request):
     # Valida y guarda un contacto; si falla, conserva el modal y sus errores.
     form = ClientForm(request.POST)
@@ -64,6 +71,7 @@ def create(request):
 
 @login_required
 @require_POST
+@client_permission_required('clients.change_client')
 def update(request, pk):
     # Busca el contacto y aplica los mismos campos y validaciones del alta.
     client = get_object_or_404(Client, pk=pk)
@@ -77,6 +85,7 @@ def update(request, pk):
 
 @login_required
 @require_POST
+@client_permission_required('clients.delete_client')
 def delete(request, pk):
     # Solo se elimina mediante POST y con una sesión válida.
     client = get_object_or_404(Client, pk=pk)
